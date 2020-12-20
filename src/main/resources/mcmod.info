@@ -1,0 +1,16 @@
+[
+{
+  "modid": "jsmod",
+  "name": "JSMod - JS Superpowers to MC",
+  "description": "JSMod further democratises Minecraft modding by allowing for mods to be written in modern JS",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["LavaAfterburner"],
+  "credits": "J2V8 for the V8 runtime which executes the JS code",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
