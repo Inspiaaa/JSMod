@@ -114,6 +114,7 @@ public class ScriptLoader {
             else {
                 hotReload();
             }
+            isColdStartRequested = false;
             isReloadRequested = false;
         }
     }

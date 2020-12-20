@@ -48,6 +48,7 @@ public class JSPlayer {
     // isInChest()
     // sprint
     // sneak
+    // isOnGround()
 
     public static V8Object create(V8 runtime) {
         instance = new JSPlayer();

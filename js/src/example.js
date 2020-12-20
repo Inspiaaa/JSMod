@@ -10,8 +10,8 @@ function AutoClicker() {
         onTick: () => {
             if (Input.isMouseDown(3)) {
                 if (lastClick > 2) {
-                    Player.leftClick()
-                    lastClick = 0
+					Player.leftClick()
+					lastClick = 0
                 }
         
                 lastClick ++
