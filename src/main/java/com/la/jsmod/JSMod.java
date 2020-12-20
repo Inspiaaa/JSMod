@@ -13,7 +13,7 @@ public class JSMod
 {
     public static final String MOD_ID = "jsmod";
     public static final String MOD_NAME = "JSMod - JS Superpowers to MC";
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "0.0";
 
     public static Logger logger;
 
@@ -31,7 +31,7 @@ public class JSMod
     public void init(FMLInitializationEvent event)
     {
         scriptLoader = new ScriptLoader();
-        scriptLoader.coldStart();
+        scriptLoader.requestColdStart();
     }
 
     @EventHandler
