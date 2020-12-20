@@ -53,18 +53,3 @@ function ToggleSneak() {
 }
 
 Engine.registerModule( ToggleSneak )
-
-/* 
-var lastClick = 0;
-
-function onTick() {
-    if (Input.isMouseDown(3)) {
-        if (lastClick > 2) {
-            Player.leftClick()
-            lastClick = 0
-        }
-
-        lastClick ++
-    }
-}
- */
