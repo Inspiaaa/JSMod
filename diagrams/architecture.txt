@@ -1,0 +1,20 @@
+
+graph LR
+  linkStyle default interpolate basis
+
+  A(Minecraft)
+  B(JSMod)
+  C(Optional JS<br>Libraries)
+  D(Your JS Code)
+  
+  subgraph Java
+  A --- B
+  end
+  
+  subgraph "V8 JavaScript"
+  B --- C
+
+  C --- D
+  B -.- D
+  end
+  

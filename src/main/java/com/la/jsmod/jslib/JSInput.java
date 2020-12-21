@@ -2,8 +2,6 @@ package com.la.jsmod.jslib;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 

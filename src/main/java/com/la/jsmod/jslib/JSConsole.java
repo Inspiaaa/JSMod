@@ -4,8 +4,6 @@ import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
 import com.la.jsmod.JSMod;
 import net.minecraft.client.Minecraft;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
 
 public class JSConsole {
     public static JSConsole instance;

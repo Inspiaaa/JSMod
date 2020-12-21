@@ -38,6 +38,8 @@ public class ScriptLoader {
         return getFileExtension(file.getName()).toLowerCase().equals("js");
     }
 
+    // TODO: Ensure the loading order by using a two pass system which loads the essential library files in first (files that start with "_")
+    // and then loads the remaining files
     private void loadFiles(String folderPath) {
         File root = new File(folderPath);
         walkAndLoadFiles(root, "");
