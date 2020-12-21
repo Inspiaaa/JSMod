@@ -20,7 +20,7 @@ JSMod calls the event methods (such as onTick) and creates the basic namespaces 
 
 1. Make sure you have the correct Minecraft version and the corresponding forge version installed
 
-2. **Download** the mod jar file (e.g `jsmod-0.0.1.jar`) and the js files (e.g. `js-0.0.1.zip`) from the [Releases](https://github.com/LavaAfterburner/JSMod/releases) page
+2. **Download** the mod jar file (e.g `jsmod-1.11.2-0.0.1.jar`) and the js files (e.g. `js-0.0.1.zip`) from the [Releases](https://github.com/LavaAfterburner/JSMod/releases) page
 
 3. Install the mod by **moving** the downloaded **jar** file to the forge **mods folder** (On Windows`C:\Users\...\AppData\Roaming\.minecraft\mods`)
 
