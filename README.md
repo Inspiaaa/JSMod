@@ -38,7 +38,7 @@ JSMod calls the event methods (such as onTick) and creates the basic namespaces 
 
 
 
-**And you're ready to go! **
+**And you're ready to go!**
 
 
 
