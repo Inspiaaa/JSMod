@@ -53,3 +53,45 @@ function ToggleSneak() {
 }
 
 Engine.registerModule( ToggleSneak )
+
+
+function FullBright() {
+    var normalGamma;
+
+    return {
+        name: "FullBright",
+		activationKey: KEY_B,
+		saveState: () => normalGamma,
+		loadState: state => {normalGamma = state},
+        onActivate: () => {
+            normalGamma = Rendering.getGamma()
+            Rendering.setGamma(100.0)
+        },
+        onDeactivate: () => {
+            Rendering.setGamma(normalGamma)
+        }
+    }
+}
+
+Engine.registerModule( FullBright )
+
+
+function Zoom() {
+	var normalFOV;
+
+	return {
+		name: "Zoom",
+		activationKey: KEY_Z,
+		saveState: () => normalFOV,
+		loadState: state => {normalFOV = state},
+		onActivate: () => {
+			normalFOV = Rendering.getFOV()
+			Rendering.setFOV(20)
+		},
+		onDeactivate: () => {
+			Rendering.setFOV(normalFOV)
+		}
+	}
+}
+
+Engine.registerModule( Zoom )

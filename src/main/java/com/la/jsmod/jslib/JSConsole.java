@@ -2,12 +2,14 @@ package com.la.jsmod.jslib;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
+import com.eclipsesource.v8.V8Value;
+import com.la.jsmod.JSEngine;
 import com.la.jsmod.JSMod;
 import net.minecraft.client.Minecraft;
 
 public class JSConsole {
     public static JSConsole instance;
-    private static Minecraft mc;
+    private Minecraft mc;
 
     public JSConsole() {
         mc = Minecraft.getMinecraft();
@@ -27,6 +29,7 @@ public class JSConsole {
         V8Object obj = new V8Object(runtime);
         obj.registerJavaMethod(instance, "log", "log", new Class[] {Object.class});
         obj.registerJavaMethod(instance, "error", "error", new Class[] {Object.class});
+        JSEngine.instance.releaseAtEnd(obj);
         return obj;
     }
 }

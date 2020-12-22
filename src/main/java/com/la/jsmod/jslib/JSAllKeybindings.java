@@ -3,6 +3,9 @@ package com.la.jsmod.jslib;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
+import com.eclipsesource.v8.V8Value;
+import com.la.jsmod.JSEngine;
+import com.la.jsmod.JSMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
@@ -37,6 +40,7 @@ public class JSAllKeybindings {
             obj.registerJavaMethod(this, "getKeyCode", "getKeyCode", new Class[] {});
             obj.registerJavaMethod(this, "update", "update", new Class[] {});
 
+            JSEngine.instance.releaseAtEnd(obj);
             return obj;
         }
 
@@ -84,6 +88,8 @@ public class JSAllKeybindings {
         obj.add("swapHands", JSKeyBind.create(runtime, gs.keyBindSwapHands));
         obj.add("hotbar", hotbarKeyBinds);
 
+        JSEngine.instance.releaseAtEnd(hotbarKeyBinds);
+        JSEngine.instance.releaseAtEnd(obj);
         return obj;
     }
 }

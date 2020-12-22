@@ -20,6 +20,8 @@ Module:
 }
 */
 
+// TODO: Maybe call deactivate before quitting
+
 function _createEngine() {
 	"use strict";
 
@@ -131,7 +133,7 @@ function _createEngine() {
 	self.onTick = function() {
 		var count = onTickListeners.length
 		for (var i = 0; i < count; i++) {
-			onTickListeners[i]()
+            onTickListeners[i]()
 		}
 	}
 

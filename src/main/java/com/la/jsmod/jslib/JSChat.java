@@ -2,12 +2,13 @@ package com.la.jsmod.jslib;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
+import com.la.jsmod.JSEngine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 
 public class JSChat {
     public static JSChat instance;
-    private static Minecraft mc;
+    private final Minecraft mc;
 
     public JSChat() {
         mc = Minecraft.getMinecraft();
@@ -30,6 +31,7 @@ public class JSChat {
         V8Object obj = new V8Object(runtime);
         obj.registerJavaMethod(instance, "msg", "msg", new Class[] {Object.class});
 
+        JSEngine.instance.releaseAtEnd(obj);
         return obj;
     }
 }

@@ -2,6 +2,7 @@ package com.la.jsmod.jslib;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
+import com.la.jsmod.JSEngine;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -22,6 +23,7 @@ public class JSInput {
         V8Object obj = new V8Object(runtime);
         obj.registerJavaMethod(instance, "isMouseDown", "isMouseDown", new Class[] {Integer.class});
         obj.registerJavaMethod(instance, "isKeyDown", "isKeyDown", new Class[] {Integer.class});
+        JSEngine.instance.releaseAtEnd(obj);
         return obj;
     }
 }

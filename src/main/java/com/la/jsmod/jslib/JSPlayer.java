@@ -2,6 +2,7 @@ package com.la.jsmod.jslib;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
+import com.la.jsmod.JSEngine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -55,6 +56,7 @@ public class JSPlayer {
 
         V8Object obj = new V8Object(runtime);
         obj.registerJavaMethod(instance, "leftClick", "leftClick", new Class[] {});
+        JSEngine.instance.releaseAtEnd(obj);
         return obj;
     }
 }

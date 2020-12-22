@@ -1,13 +1,8 @@
 package com.la.jsmod;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Array;
-import com.eclipsesource.v8.V8ScriptCompilationException;
-import com.eclipsesource.v8.V8ScriptExecutionException;
+import com.eclipsesource.v8.*;
 import com.la.jsmod.jslib.*;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -17,18 +12,24 @@ import org.lwjgl.input.Keyboard;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.Key;
-import java.util.logging.Logger;
+import java.util.LinkedList;
 
 public class JSEngine {
+    public static JSEngine instance;
+
+    public V8 runtime;
+
+    private final LinkedList<V8Object> objectsToReleaseAtEnd = new LinkedList<V8Object>();
+    private final LinkedList<V8Object> objectsToReleaseNextTick = new LinkedList<V8Object>();
+
     // TODO: Create command to activate / deactivate this from the game
     public static boolean printErrors = true;
 
     private final String DEFAULT_SCRIPT_NAME = "__main__";
-    public V8 runtime;
 
     public JSEngine() {
         MinecraftForge.EVENT_BUS.register(this);
+        instance = this;
     }
 
 
@@ -55,7 +56,6 @@ public class JSEngine {
     }
 
 
-    // TODO: Use runtime.executeVoidScript(code, scriptName, 0); for better js error messages
     public void safeLoad(String code) {
         safeLoad(code, true, DEFAULT_SCRIPT_NAME);
     }
@@ -91,6 +91,7 @@ public class JSEngine {
         }
         catch (V8ScriptExecutionException e) {
             if (printErrors) {
+                JSMod.logger.error(e.getJSMessage());
                 JSMod.logger.error(e.getJSStackTrace());
             }
         }
@@ -106,6 +107,7 @@ public class JSEngine {
         }
         catch (V8ScriptExecutionException e) {
             if (printErrors) {
+                JSMod.logger.error(e.getJSMessage());
                 JSMod.logger.error(e.getJSStackTrace());
             }
         }
@@ -114,27 +116,58 @@ public class JSEngine {
     }
 
 
+    public void releaseNextTick(V8Object obj) {
+        objectsToReleaseNextTick.add(obj);
+    }
+
+    public void releaseAtEnd(V8Object obj) {
+        objectsToReleaseAtEnd.add(obj);
+    }
+
+
     public void createRuntime() {
         JSMod.logger.info("Creating V8 Runtime");
         runtime = V8.createV8Runtime();
 
-        // TODO: Keep track of these objects and release them individually
         runtime.add("Console", JSConsole.create(runtime));
         runtime.add("Chat", JSChat.create(runtime));
         runtime.add("Input", JSInput.create(runtime));
         runtime.add("Player", JSPlayer.create(runtime));
         runtime.add("KeyBind", JSAllKeybindings.create(runtime));
+        runtime.add("Rendering", JSRendering.create(runtime));
     }
-
+    
     public void releaseRuntime() {
         JSMod.logger.info("Releasing V8 Runtime");
-        runtime.release(false);
+
+        for (V8Object obj : objectsToReleaseNextTick) {
+            obj.release();
+        }
+        objectsToReleaseNextTick.clear();
+
+        for (V8Object obj : objectsToReleaseAtEnd) {
+            obj.release();
+        }
+        objectsToReleaseAtEnd.clear();
+
+        try {
+            runtime.release(true);
+        }
+        catch (IllegalStateException e) {
+            JSMod.logger.warn("Memory leaks detected");
+            JSMod.logger.warn(e.getMessage());
+        }
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         if (event.side != Side.CLIENT)
             return;
+
+        for (V8Object obj : objectsToReleaseNextTick) {
+            obj.release();
+        }
+        objectsToReleaseNextTick.clear();
 
         try {
             safeCallVoid("onTick");
