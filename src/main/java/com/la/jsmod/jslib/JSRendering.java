@@ -16,7 +16,6 @@ public class JSRendering {
     public float getFOV() {
         return mc.gameSettings.fovSetting;
     }
-
     public void setFOV(Float fov) {
         mc.gameSettings.fovSetting = fov;
     }
@@ -27,7 +26,6 @@ public class JSRendering {
     public float getGamma() {
         return mc.gameSettings.gammaSetting;
     }
-
     public void setGamma(Float gamma) {
         mc.gameSettings.gammaSetting = gamma;
     }

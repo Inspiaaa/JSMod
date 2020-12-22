@@ -136,7 +136,7 @@ public class JSEngine {
         runtime.add("KeyBind", JSAllKeybindings.create(runtime));
         runtime.add("Rendering", JSRendering.create(runtime));
     }
-    
+
     public void releaseRuntime() {
         JSMod.logger.info("Releasing V8 Runtime");
 
