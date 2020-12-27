@@ -1,4 +1,20 @@
 
+function AutoBridge() {
+    return {
+        name: "AutoBridge",
+        activeByDefault: true,
+        onTick: () => {
+            if (Input.isMouseDown(4)) {
+                var pos = Player.getPos()
+                pos[1] -= 1
+                if (World.getBlock(pos) == Blocks.AIR)
+                    World.setBlock(pos, Blocks.STONE)
+            }
+        }
+    }
+}
+Engine.registerModule( AutoBridge )
+
 function AutoClicker() {
     var lastClick = 0;
 

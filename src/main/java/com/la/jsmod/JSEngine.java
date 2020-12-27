@@ -2,6 +2,8 @@ package com.la.jsmod;
 
 import com.eclipsesource.v8.*;
 import com.la.jsmod.jslib.*;
+import com.la.jsmod.jslib.world.JSBlocks;
+import com.la.jsmod.jslib.world.JSWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -135,6 +137,8 @@ public class JSEngine {
         runtime.add("Player", JSPlayer.create(runtime));
         runtime.add("KeyBind", JSAllKeybindings.create(runtime));
         runtime.add("Rendering", JSRendering.create(runtime));
+        runtime.add("Blocks", JSBlocks.create(runtime));
+        runtime.add("World", JSWorld.create(runtime));
     }
 
     public void releaseRuntime() {
