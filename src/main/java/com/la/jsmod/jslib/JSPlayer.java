@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 public class JSPlayer {
     public static JSPlayer instance;
@@ -60,6 +59,8 @@ public class JSPlayer {
         return player.onGround;
     }
 
+    // TODO: Create setters for pos, vel and rot
+
     public V8Array getPos() {
         // TODO: Add prototype to vec object (To add useful methods like magnitude)
         V8Array vec = new V8Array(JSEngine.instance.runtime);
@@ -82,6 +83,15 @@ public class JSPlayer {
         return vec;
     }
 
+    public V8Array getRot() {
+        V8Array rot = new V8Array(JSEngine.instance.runtime);
+        rot.push(player.rotationYawHead);
+        rot.push(player.rotationPitch);
+        JSEngine.instance.releaseNextTick(rot);
+
+        return rot;
+    }
+
     public static V8Object create(V8 runtime) {
         instance = new JSPlayer();
 
@@ -91,6 +101,7 @@ public class JSPlayer {
         obj.registerJavaMethod(instance, "isOnGround", "isOnGround", new Class[] {});
         obj.registerJavaMethod(instance, "getPos", "getPos", new Class[] {});
         obj.registerJavaMethod(instance, "getVel", "getVel", new Class[] {});
+        obj.registerJavaMethod(instance, "getRot", "getRot", new Class[] {});
 
         JSEngine.instance.releaseAtEnd(obj);
         return obj;
