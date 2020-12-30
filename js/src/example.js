@@ -1,7 +1,8 @@
 
 function AutoBridge() {
     return {
-        name: "AutoBridge",
+        name: "RotateRepeaterToNorth",
+        desc: "Rotates the repeater one block under the player",
         activeByDefault: true,
         onTick: () => {
             if (Input.isMouseDown(4)) {
@@ -9,8 +10,6 @@ function AutoBridge() {
                 pos[1] -= 1
                 Chat.msg(JSON.stringify(World.getBlockState(pos)))
                 World.setBlockState(pos, {"facing": "east"})
-                //if (World.getBlock(pos) == Blocks.AIR)
-                //    World.setBlock(pos, Blocks.STONE)
             }
         }
     }
