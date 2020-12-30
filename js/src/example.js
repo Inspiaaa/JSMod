@@ -7,8 +7,10 @@ function AutoBridge() {
             if (Input.isMouseDown(4)) {
                 var pos = Player.getPos()
                 pos[1] -= 1
-                if (World.getBlock(pos) == Blocks.AIR)
-                    World.setBlock(pos, Blocks.STONE)
+                Chat.msg(JSON.stringify(World.getBlockState(pos)))
+                World.setBlockState(pos, {"facing": "east"})
+                //if (World.getBlock(pos) == Blocks.AIR)
+                //    World.setBlock(pos, Blocks.STONE)
             }
         }
     }

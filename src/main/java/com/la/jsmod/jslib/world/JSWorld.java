@@ -3,12 +3,18 @@ package com.la.jsmod.jslib.world;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
+import com.google.common.collect.ImmutableMap;
 import com.la.jsmod.JSEngine;
 import com.la.jsmod.util.ConversionHelper;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.Map;
 
 public class JSWorld {
     public static JSWorld instance;
@@ -64,6 +70,74 @@ public class JSWorld {
         }
     }
 
+    public V8Object getBlockState(V8Array pos) {
+        BlockPos blockPos = ConversionHelper.toBlockPos(pos);
+        pos.release();
+
+        V8Object obj = new V8Object(JSEngine.instance.runtime);
+        JSEngine.instance.releaseNextTick(obj);
+
+        try {
+            IBlockState state = mc.world.getBlockState(blockPos);
+            ImmutableMap<IProperty<?>, Comparable<?>> map = state.getProperties();
+
+            for (Map.Entry<IProperty<?>, Comparable<?>> entry : map.entrySet()) {
+                IProperty<?> prop = entry.getKey();
+                Comparable<?> value = entry.getValue();
+
+                String name = prop.getName();
+
+                if (prop instanceof PropertyInteger) {
+                    obj.add(name, (Integer) value);
+                }
+                else if (prop instanceof PropertyBool) {
+                    obj.add(name, (Boolean) value);
+                }
+                else {
+                    obj.add(prop.getName(), value.toString());
+                }
+            }
+
+            return obj;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return obj;
+        }
+    }
+
+    public void setBlockState(V8Array pos, V8Object jsState) {
+        BlockPos blockPos = ConversionHelper.toBlockPos(pos);
+        pos.release();
+
+        IBlockState oldState = mc.world.getBlockState(blockPos);
+        IBlockState newState = oldState;
+
+        for (String propertyName : jsState.getKeys()) {
+            Object value = jsState.get(propertyName);
+
+            IProperty prop = JSBlocks.getProperty(oldState.getBlock(), propertyName);
+
+            if (value instanceof Integer) {
+                newState = newState.withProperty(prop, (int) (Integer) value);
+            }
+            else if (value instanceof Boolean) {
+                newState = newState.withProperty(prop, (boolean) (Boolean) value);
+            }
+            else if (value instanceof String) {
+                newState = newState.withProperty(prop, JSBlocks.getPropertyValue(prop, (String) value));
+            }
+        }
+
+        if (mc.getIntegratedServer() != null)
+            mc.getIntegratedServer().getEntityWorld().setBlockState(blockPos, newState);
+        else
+            mc.world.setBlockState(blockPos, newState);
+
+
+        jsState.release();
+    }
+
     public static V8Object create(V8 runtime) {
         instance = new JSWorld();
 
@@ -73,6 +147,8 @@ public class JSWorld {
         obj.registerJavaMethod(instance, "setBlock", "setBlockLocally", new Class[] { V8Array.class, Integer.class });
 
         obj.registerJavaMethod(instance, "getBlock", "getBlock", new Class[] { V8Array.class });
+        obj.registerJavaMethod(instance, "getBlockState", "getBlockState", new Class[] { V8Array.class });
+        obj.registerJavaMethod(instance, "setBlockState", "setBlockState", new Class[] { V8Array.class, V8Object.class });
 
         JSEngine.instance.releaseAtEnd(obj);
         return obj;

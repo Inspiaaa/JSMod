@@ -55,12 +55,28 @@ public class JSPlayer {
     // sprint
     // sneak
     // isOnGround()
+    // getChest()
+    // canSeeEntity(Entity ...)
 
     public boolean isOnGround() {
         return player.onGround;
     }
 
-    // TODO: Create setters for pos, vel and rot
+    public boolean isSprinting() {
+        return mc.player.isSprinting();
+    }
+
+    public boolean isSneaking() {
+        return mc.player.isSneaking();
+    }
+
+    public float getHealth() {
+        return mc.player.getHealth();
+    }
+
+    public float getMaxHealth() {
+        return mc.player.getMaxHealth();
+    }
 
     public V8Array getPos() {
         // TODO: Add prototype to vec object (To add useful methods like magnitude)
@@ -128,7 +144,13 @@ public class JSPlayer {
         V8Object obj = new V8Object(runtime);
 
         obj.registerJavaMethod(instance, "leftClick", "leftClick", new Class[] {});
+
         obj.registerJavaMethod(instance, "isOnGround", "isOnGround", new Class[] {});
+        obj.registerJavaMethod(instance, "isSprinting", "isSprinting", new Class[] {});
+        obj.registerJavaMethod(instance, "isSneaking", "isSneaking", new Class[] {});
+
+        obj.registerJavaMethod(instance, "getHealth", "getHealth", new Class[] {});
+        obj.registerJavaMethod(instance, "getMaxHealth", "getMaxHealth", new Class[] {});
 
         obj.registerJavaMethod(instance, "getPos", "getPos", new Class[] {});
         obj.registerJavaMethod(instance, "getVel", "getVel", new Class[] {});
