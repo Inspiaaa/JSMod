@@ -4,6 +4,7 @@ import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
 import com.la.jsmod.JSEngine;
+import com.la.jsmod.util.ConversionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.EnumHand;
@@ -92,6 +93,35 @@ public class JSPlayer {
         return rot;
     }
 
+    public void setPos(V8Array pos) {
+        double x = ConversionHelper.toDouble(pos.get(0));
+        double y = ConversionHelper.toDouble(pos.get(1));
+        double z = ConversionHelper.toDouble(pos.get(2));
+        pos.release();
+
+        mc.player.setPosition(x, y, z);
+    }
+
+    public void setRot(V8Array rot) {
+        float yaw = ConversionHelper.toFloat(rot.get(0));
+        float pitch = ConversionHelper.toFloat(rot.get(1));
+        rot.release();
+
+        mc.player.rotationYawHead = yaw;
+        mc.player.rotationPitch = pitch;
+    }
+
+    public void setVel(V8Array vel) {
+        double x = ConversionHelper.toDouble(vel.get(0));
+        double y = ConversionHelper.toDouble(vel.get(1));
+        double z = ConversionHelper.toDouble(vel.get(2));
+        vel.release();
+
+        mc.player.motionX = x;
+        mc.player.motionY = y;
+        mc.player.motionZ = z;
+    }
+
     public static V8Object create(V8 runtime) {
         instance = new JSPlayer();
 
@@ -99,9 +129,14 @@ public class JSPlayer {
 
         obj.registerJavaMethod(instance, "leftClick", "leftClick", new Class[] {});
         obj.registerJavaMethod(instance, "isOnGround", "isOnGround", new Class[] {});
+
         obj.registerJavaMethod(instance, "getPos", "getPos", new Class[] {});
         obj.registerJavaMethod(instance, "getVel", "getVel", new Class[] {});
         obj.registerJavaMethod(instance, "getRot", "getRot", new Class[] {});
+
+        obj.registerJavaMethod(instance, "setPos", "setPos", new Class[] {V8Array.class});
+        obj.registerJavaMethod(instance, "setVel", "setVel", new Class[] {V8Array.class});
+        obj.registerJavaMethod(instance, "setRot", "setRot", new Class[] {V8Array.class});
 
         JSEngine.instance.releaseAtEnd(obj);
         return obj;
