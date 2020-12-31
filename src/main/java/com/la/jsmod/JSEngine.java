@@ -168,6 +168,9 @@ public class JSEngine {
         if (event.side != Side.CLIENT)
             return;
 
+        if (event.phase != TickEvent.Phase.END)
+            return;
+
         for (V8Object obj : objectsToReleaseNextTick) {
             obj.release();
         }
