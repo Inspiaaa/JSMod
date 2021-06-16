@@ -1,5 +1,4 @@
 
-
 /*
 Module:
 {
@@ -23,6 +22,7 @@ Module:
 */
 
 // TODO: Maybe call deactivate before quitting
+// TODO: Create central error reporting system that reports user errors
 
 function _createEngine() {
 	"use strict";
@@ -36,7 +36,7 @@ function _createEngine() {
 	}
 
 	var _idGenerator = _makeIdGenerator();
-	function nextId() { return idGenerator.next().value }
+	function nextId() { return _idGenerator.next().value }
 
 	var self = {}
 
@@ -151,6 +151,26 @@ function _createEngine() {
 		modulesToLoad = []
 	}
 
+	// Wraps a user function in a try-catch
+	// This prevents an error in one module to stop the entire engine code
+	function callSafely(func) {
+		try {
+			return func();
+		}
+		catch (error) {
+			console.error(error.toString());
+		}
+	}
+
+	function callSafelyArg(func, arg) {
+		try {
+			return func(arg);
+		}
+		catch (error) {
+			console.error(error.toString());
+		}
+	}
+
 	var idToModule = new Map()
 	var funcToModule = new Map()
 
@@ -172,8 +192,11 @@ function _createEngine() {
 
 	self.onTick = function() {
 		for (var listener of onTickListeners) {
-			listener()
+			callSafely(listener);
 		}
+
+		// Also update the coroutine manager
+		Coroutine.onTick();
 	}
 
 	self.onKeyDown = function(keyCode) {
@@ -182,13 +205,13 @@ function _createEngine() {
 		}
 
 		for (var listener of onKeyDownListeners) {
-			listener(keyCode);
+			callSafelyArg(listener, keyCode);
 		}
 	}
 
 	self.onKeyUp = function(keyCode) {
 		for (var listener of onKeyUpListeners) {
-			listener(keyCode);
+			callSafelyArg(listener, keyCode);
 		}
 	};
 
@@ -202,7 +225,7 @@ function _createEngine() {
 
 		idToModule.forEach(module => {
 			if ("saveState" in module) {
-				moduleStates[module.id] = module.saveState()
+				moduleStates[module.id] = callSafelyArg(module.saveState)
 			}
 
 			moduleActive[module.id] = module.isActive
