@@ -57,6 +57,7 @@ public class JSPlayer {
     // isOnGround()
     // getChest()
     // canSeeEntity(Entity ...)
+    // blockLookingAt
 
     public boolean isOnGround() {
         return player.onGround;

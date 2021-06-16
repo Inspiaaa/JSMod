@@ -8,13 +8,46 @@ function AutoBridge() {
             if (Input.isMouseDown(4)) {
                 var pos = Player.getPos()
                 pos[1] -= 1
-                Chat.msg(JSON.stringify(World.getBlockState(pos)))
-                World.setBlockState(pos, {"facing": "east"})
+
+                World.setBlock(pos, Blocks.UNPOWERED_REPEATER)
+                World.setBlockState(pos, {facing: "north"})
+
+                pos[2] += 1
+                World.setBlock(pos, Blocks.REDSTONE_WIRE)
             }
         }
     }
 }
 Engine.registerModule( AutoBridge )
+
+
+function Parkour() {
+    var lookahead = 2
+    var lastPos = [0, 0, 0]
+
+    return {
+        name: "Parkour",
+        activeByDefault: true,
+        onTick: () => {
+            if (! Player.isOnGround()) return
+            KeyBind.jump.update()
+
+            var pos = Player.getPos()
+            pos[1] -= 1
+
+            var vel = Player.getVel()
+            //var vel = [(pos[0]-lastPos[0]), (pos[1]-lastPos[1]), (pos[2]-lastPos[2])]
+            lastPos = pos
+            var nextPos = [pos[0] + vel[0]*lookahead, pos[1], pos[2] + vel[2]*lookahead]
+
+            if (World.getBlock(nextPos) == Blocks.AIR && World.getBlock(pos) != Blocks.AIR) {
+                KeyBind.jump.setState(true);
+            }
+        }
+    }
+}
+
+Engine.registerModule( Parkour )
 
 function AutoClicker() {
     var lastClick = 0;
