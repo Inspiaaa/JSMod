@@ -10,6 +10,8 @@ Module:
 	onRender: (partialTick) => void,
 	onKeyDown: (keyCode) => void,
 	onKeyUp: (keyCode) => void,
+	onActivate() => void,
+	onDeactivate() => void,
 
 	isActive: false,			// Guaranteed
 	activeByDefault: false,		// Guaranteed

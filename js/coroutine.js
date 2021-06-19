@@ -29,6 +29,10 @@ function _makeCoroutineManager() {
 			idToRunningCoroutine.delete(id);
 		},
 
+		stopAll() {
+			idToRunningCoroutine.clear();
+		},
+
 		onTick() {
 			for (var entry of idToRunningCoroutine.entries) {
 				var id, generator, result;
@@ -47,6 +51,27 @@ function _makeCoroutineManager() {
 					idToRunningCoroutine.delete(id);
 				}
 			}
+		},
+
+		*waitForTicks(ticks) {
+			while (ticks --) yield;
+		},
+
+		*waitForSeconds(seconds) {
+			var startTime = Time.time();
+			var endTime = startTime + seconds;
+
+			while (Time.time() < endTime) {
+				yield;
+			}
+		},
+
+		*waitWhile(func) {
+			while (func()) yield;
+		},
+
+		*waitUntil(func) {
+			while (! func()) yield;
 		}
 	}
 }

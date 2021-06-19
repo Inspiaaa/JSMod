@@ -38,6 +38,7 @@ public class JSPlayer {
                 case MISS:
                     mc.player.resetCooldown();
                     net.minecraftforge.common.ForgeHooks.onEmptyLeftClick(mc.player);
+                    break;
             }
 
             mc.player.swingArm(EnumHand.MAIN_HAND);
