@@ -1,7 +1,10 @@
 package com.la.jsmod;
 
 import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.exceptions.JavetCompilationException;
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.exceptions.JavetExecutionException;
+import com.caoccao.javet.exceptions.JavetScriptingError;
 import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.interop.V8ScriptOrigin;
@@ -59,6 +62,25 @@ public class JavetTest {
             runtime.getExecutor("Java.say('Hello world!')").executeVoid();
             runtime.getGlobalObject().delete(obj);
             obj.close();
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testJsError() {
+        try {
+            JSMod.logger.info("Intentionally producing an error");
+            runtime.getExecutor("null.a").executeVoid();
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+        try {
+            runtime.execute("null.a", new V8ScriptOrigin("long_path/test_file.js"), false);
+        }
+        catch (JavetExecutionException e) {
+            JSMod.logger.info(e.getScriptingError().getMessage());
         }
         catch (JavetException e) {
             e.printStackTrace();
@@ -133,6 +155,7 @@ public class JavetTest {
             testFunction();
             testJsToJava();
             testJsToJavaToJs();
+            testJsError();
 
         } catch (JavetException e) {
             e.printStackTrace();
