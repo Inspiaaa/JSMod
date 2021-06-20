@@ -1,6 +1,6 @@
 package com.la.jsmod;
 
-import com.la.jsmod.commands.HotReloadCommand;
+// import com.la.jsmod.commands.HotReloadCommand;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -17,8 +17,6 @@ public class JSMod
 
     public static Logger logger;
 
-    public ScriptLoader scriptLoader;
-
     @Mod.Instance(MOD_ID)
     public static JSMod instance;
 
@@ -30,18 +28,18 @@ public class JSMod
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        scriptLoader = new ScriptLoader();
-        scriptLoader.requestColdStart();
+        new JavetTest();
+        JavetTest.instance.createRuntime();
     }
 
     @EventHandler
     public static void init(FMLServerStartingEvent event)
     {
-        event.registerServerCommand(new HotReloadCommand());
+        // event.registerServerCommand(new HotReloadCommand());
     }
 
     @Override
     protected void finalize() {
-        scriptLoader.releaseRuntime();
+        JavetTest.instance.releaseRuntime();
     }
 }
