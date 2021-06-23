@@ -1,5 +1,5 @@
 
 const Time = {
 	// Time in seconds
-	time: () => performance.now() / 1000
+	time: () => new Date().getTime() / 1000
 }

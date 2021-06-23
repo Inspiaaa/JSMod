@@ -21,6 +21,35 @@ function AutoBridge() {
 Engine.registerModule( AutoBridge )
 
 
+function CoroutineExample() {
+    var id = Coroutine.createId();
+
+    function* printNumbers() {
+        for (var i = 1; i < 11; i++) {
+            yield* Coroutine.waitForSeconds(0.5);
+            
+            Chat.msg(i);
+        }
+
+        Engine.deactivate(CoroutineExample)
+    }
+
+    return {
+        name: "Coroutine Example",
+        desc: "Prints the numbers 1 to 10",
+        activeByDefault: true,
+
+        onActivate() {
+            Coroutine.start(printNumbers(), id)
+        },
+
+        onDeactivate() {
+            Coroutine.stop(id);
+        }
+    }
+}
+Engine.registerModule( CoroutineExample )
+
 function Parkour() {
     var lookahead = 2
     var lastPos = [0, 0, 0]

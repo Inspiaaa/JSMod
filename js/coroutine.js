@@ -1,6 +1,6 @@
 
 function _makeCoroutineManager() {
-	var idToRunningCoroutine = new Map();
+	var runningCoroutinesById = new Map();
 
 	function* _makeIdGenerator() {
 		var idCounter = 0
@@ -18,23 +18,23 @@ function _makeCoroutineManager() {
 
 		start(coroutine, id=undefined) {
 			if (typeof id === "undefined") {
-				id = createId();
+				id = this.createId();
 			}
 	
-			idToRunningCoroutine.set(id, coroutine);
+			runningCoroutinesById.set(id, coroutine);
 			return id;
 		},
 
 		stop(id) {
-			idToRunningCoroutine.delete(id);
+			runningCoroutinesById.delete(id);
 		},
 
 		stopAll() {
-			idToRunningCoroutine.clear();
+			runningCoroutinesById.clear();
 		},
 
 		onTick() {
-			for (var entry of idToRunningCoroutine.entries) {
+			for (var entry of runningCoroutinesById.entries()) {
 				var id, generator, result;
 
 				[id, generator] = entry;
@@ -48,7 +48,7 @@ function _makeCoroutineManager() {
 				}
 
 				if (result.done) {
-					idToRunningCoroutine.delete(id);
+					runningCoroutinesById.delete(id);
 				}
 			}
 		},
