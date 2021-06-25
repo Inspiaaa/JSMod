@@ -111,7 +111,6 @@ public class JSEngine {
         try {
             // runtime.execute(code, new V8ScriptOrigin(name), true);
             runtime.getExecutor(code).setResourceName(name).executeVoid();
-            JSMod.logger.info(runtime.getGlobalObject().getJson().stringify(runtime.getGlobalObject()));
         }
         catch (JavetCompilationException e) {
             if (showError) {
@@ -200,11 +199,12 @@ public class JSEngine {
         }
 
         JSMod.logger.info("Loading builtin libraries");
+        // TODO: Maybe make Console lower case so that it is more standard
         loadGlobalLibrary("Console", JSConsole.create(runtime));
         loadGlobalLibrary("Chat", JSChat.create(runtime));
         loadGlobalLibrary("Input", JSInput.create(runtime));
         loadGlobalLibrary("Player", JSPlayer.create(runtime));
-        // loadGlobalLibrary("KeyBind", JSAllKeybindings.create(runtime));
+        loadGlobalLibrary("KeyBind", JSAllKeybindings.create(runtime));
         loadGlobalLibrary("Rendering", JSRendering.create(runtime));
         // loadGlobalLibrary("Blocks", JSBlocks.create(runtime));
         // loadGlobalLibrary("World", JSWorld.create(runtime));

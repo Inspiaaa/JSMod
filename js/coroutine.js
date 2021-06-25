@@ -43,7 +43,7 @@ function _makeCoroutineManager() {
 					result = generator.next();
 				}
 				catch (error) {
-					console.error(error.toString())
+					Console.error(error.toString())
 					continue;
 				}
 

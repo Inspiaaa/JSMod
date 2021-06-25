@@ -160,7 +160,7 @@ function _createEngine() {
 			return func();
 		}
 		catch (error) {
-			console.error(error.toString());
+			Console.error(error.toString());
 		}
 	}
 
@@ -169,7 +169,7 @@ function _createEngine() {
 			return func(arg);
 		}
 		catch (error) {
-			console.error(error.toString());
+			Console.error(error.toString());
 		}
 	}
 
@@ -267,9 +267,9 @@ function _createEngine() {
 							module.cleanState()
 						}
 
-						console.error("Error loading previous state for " + module.id)
-						console.error("Probable cause: The previous state is no longer compatible with the new code.")
-						console.error(error.toString())
+						Console.error("Error loading previous state for " + module.id)
+						Console.error("Probable cause: The previous state is no longer compatible with the new code.")
+						Console.error(error.toString())
 					}
 				}
 			})
