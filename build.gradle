@@ -60,7 +60,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    shade "com.eclipsesource.j2v8:j2v8_win32_x86_64:4.6.0"
+    shade "com.caoccao.javet:javet:0.9.1"
 }
 
 

@@ -1,6 +1,5 @@
 package com.la.jsmod;
 
-import com.eclipsesource.v8.V8Array;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -89,10 +88,7 @@ public class ScriptLoader {
 
         JSMod.logger.info("Reloading previous state");
         if (! stateStr.equals("")) {
-            V8Array params = new V8Array(engine.runtime);
-            params.push(stateStr);
-            engine.safeCallVoid("loadState", params);
-            params.release();
+            engine.safeCallVoid("loadState", stateStr);
         }
     }
 

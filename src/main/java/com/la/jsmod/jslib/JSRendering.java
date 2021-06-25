@@ -1,7 +1,8 @@
 package com.la.jsmod.jslib;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Object;
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.JSEngine;
 import net.minecraft.client.Minecraft;
 
@@ -13,40 +14,26 @@ public class JSRendering {
         mc = Minecraft.getMinecraft();
     }
 
+    @V8Function
     public float getFOV() {
         return mc.gameSettings.fovSetting;
     }
-    public void setFOV(Float fov) {
-        mc.gameSettings.fovSetting = fov;
-    }
-    public void setFOV(Integer fov) {
+    @V8Function
+    public void setFOV(float fov) {
         mc.gameSettings.fovSetting = fov;
     }
 
+    @V8Function
     public float getGamma() {
         return mc.gameSettings.gammaSetting;
     }
-    public void setGamma(Float gamma) {
-        mc.gameSettings.gammaSetting = gamma;
-    }
-    public void setGamma(Integer gamma) {
+    @V8Function
+    public void setGamma(float gamma) {
         mc.gameSettings.gammaSetting = gamma;
     }
 
-    public static V8Object create(V8 runtime) {
+    public static V8ValueObject create(V8Runtime runtime) {
         instance = new JSRendering();
-
-        V8Object obj = new V8Object(runtime);
-
-        obj.registerJavaMethod(instance, "setFOV", "setFOV", new Class[] {Float.class});
-        obj.registerJavaMethod(instance, "setFOV", "setFOV", new Class[] {Integer.class});
-        obj.registerJavaMethod(instance, "getFOV", "getFOV", new Class[] {});
-
-        obj.registerJavaMethod(instance, "setGamma", "setGamma", new Class[] {Float.class});
-        obj.registerJavaMethod(instance, "setGamma", "setGamma", new Class[] {Integer.class});
-        obj.registerJavaMethod(instance, "getGamma", "getGamma", new Class[] {});
-
-        JSEngine.instance.releaseAtEnd(obj);
-        return obj;
+        return JSEngine.instance.createGlobalJsLib(instance);
     }
 }

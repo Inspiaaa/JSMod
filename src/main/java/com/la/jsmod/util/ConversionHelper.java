@@ -1,6 +1,7 @@
 package com.la.jsmod.util;
 
-import com.eclipsesource.v8.V8Array;
+import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.values.reference.V8ValueArray;
 import net.minecraft.util.math.BlockPos;
 
 public class ConversionHelper {
@@ -35,11 +36,18 @@ public class ConversionHelper {
         return (Float) val;
     }
 
-    public static BlockPos toBlockPos(V8Array pos) {
-        int x = toInt(pos.get(0));
-        int y = toInt(pos.get(1));
-        int z = toInt(pos.get(2));
+    public static BlockPos toBlockPos(V8ValueArray pos) {
+        try {
+            int x = toInt(pos.get(0));
+            int y = toInt(pos.get(1));
+            int z = toInt(pos.get(2));
 
-        return new BlockPos(x, y, z);
+            return new BlockPos(x, y, z);
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

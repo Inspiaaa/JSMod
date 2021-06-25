@@ -1,7 +1,9 @@
 package com.la.jsmod.jslib;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Object;
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.values.V8Value;
+import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.JSEngine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
@@ -16,7 +18,8 @@ public class JSChat {
 
     // TODO: public message: mc.player.sendChatMessage(obj.toString());
 
-    public void msg(Object obj) {
+    @V8Function
+    public void msg(V8Value obj) {
         try {
             mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(obj.toString()));
         }
@@ -25,13 +28,8 @@ public class JSChat {
         // TODO: Do an actual Null pointer check instead of try except
     }
 
-    public static V8Object create(V8 runtime) {
+    public static V8ValueObject create(V8Runtime runtime) {
         instance = new JSChat();
-
-        V8Object obj = new V8Object(runtime);
-        obj.registerJavaMethod(instance, "msg", "msg", new Class[] {Object.class});
-
-        JSEngine.instance.releaseAtEnd(obj);
-        return obj;
+        return JSEngine.instance.createGlobalJsLib(instance);
     }
 }

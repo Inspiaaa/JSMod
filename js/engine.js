@@ -299,11 +299,11 @@ function _createEngine() {
 const Engine = _createEngine()
 
 const saveState = Engine.saveState
-const loadState = Engine.loadState
+var loadState = Engine.loadState
 
-const onInit = Engine.onInit
+var onInit = Engine.onInit
 
-const onKeyDown = Engine.onKeyDown
-const onKeyUp = Engine.onKeyUp
+var onKeyDown = Engine.onKeyDown
+var onKeyUp = Engine.onKeyUp
 
-const onTick = Engine.onTick
+var onTick = Engine.onTick

@@ -1,35 +1,26 @@
 package com.la.jsmod.jslib;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Object;
-import com.eclipsesource.v8.V8Value;
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.JSEngine;
 import com.la.jsmod.JSMod;
-import net.minecraft.client.Minecraft;
 
 public class JSConsole {
     public static JSConsole instance;
-    private Minecraft mc;
 
-    public JSConsole() {
-        mc = Minecraft.getMinecraft();
-    }
-
+    @V8Function
     public void log(Object msg) {
         JSMod.logger.info(msg.toString());
     }
 
+    @V8Function
     public void error(Object msg) {
-        JSMod.logger.error(msg);
+        JSMod.logger.error(msg.toString());
     }
 
-    public static V8Object create(V8 runtime) {
+    public static V8ValueObject create(V8Runtime runtime) {
         instance = new JSConsole();
-
-        V8Object obj = new V8Object(runtime);
-        obj.registerJavaMethod(instance, "log", "log", new Class[] {Object.class});
-        obj.registerJavaMethod(instance, "error", "error", new Class[] {Object.class});
-        JSEngine.instance.releaseAtEnd(obj);
-        return obj;
+        return JSEngine.instance.createGlobalJsLib(instance);
     }
 }

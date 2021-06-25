@@ -1,8 +1,10 @@
 package com.la.jsmod.jslib;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Array;
-import com.eclipsesource.v8.V8Object;
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.values.reference.V8ValueArray;
+import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.JSEngine;
 import com.la.jsmod.util.ConversionHelper;
 import net.minecraft.client.Minecraft;
@@ -12,14 +14,18 @@ import net.minecraft.util.math.BlockPos;
 
 public class JSPlayer {
     public static JSPlayer instance;
-    private static Minecraft mc;
-    private static EntityPlayerSP player;
+    private Minecraft mc;
+    private EntityPlayerSP player;
 
-    public JSPlayer() {
+    private V8Runtime runtime;
+
+    public JSPlayer(V8Runtime runtime) {
         mc = Minecraft.getMinecraft();
         player = mc.player;
+        this.runtime = runtime;
     }
 
+    @V8Function
     // Copied from Minecraft.java
     public void leftClick() {
         if (!mc.player.isRowingBoat()) {
@@ -60,109 +66,119 @@ public class JSPlayer {
     // canSeeEntity(Entity ...)
     // blockLookingAt
 
+    @V8Function
     public boolean isOnGround() {
         return player.onGround;
     }
 
+    @V8Function
     public boolean isSprinting() {
         return mc.player.isSprinting();
     }
 
+    @V8Function
     public boolean isSneaking() {
         return mc.player.isSneaking();
     }
 
+    @V8Function
     public float getHealth() {
         return mc.player.getHealth();
     }
 
+    @V8Function
     public float getMaxHealth() {
         return mc.player.getMaxHealth();
     }
 
-    public V8Array getPos() {
-        // TODO: Add prototype to vec object (To add useful methods like magnitude)
-        V8Array vec = new V8Array(JSEngine.instance.runtime);
-        vec.push(player.posX);
-        vec.push(player.posY);
-        vec.push(player.posZ);
-        JSEngine.instance.releaseNextTick(vec);
+    private V8ValueArray makeVector(double... parameters) {
+        V8ValueArray vec = null;
+
+        try {
+            vec = runtime.createV8ValueArray();
+
+            for (double parameter : parameters) {
+                vec.push(parameter);
+            }
+
+            vec.setWeak();
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
 
         return vec;
     }
 
-    public V8Array getVel() {
+    @V8Function
+    public V8ValueArray getPos() {
         // TODO: Add prototype to vec object (To add useful methods like magnitude)
-        V8Array vec = new V8Array(JSEngine.instance.runtime);
-        vec.push(player.motionX);
-        vec.push(player.motionY);
-        vec.push(player.motionZ);
-        JSEngine.instance.releaseNextTick(vec);
-
-        return vec;
+        return makeVector(player.posX, player.posY, player.posZ);
     }
 
-    public V8Array getRot() {
-        V8Array rot = new V8Array(JSEngine.instance.runtime);
-        rot.push(player.rotationYawHead);
-        rot.push(player.rotationPitch);
-        JSEngine.instance.releaseNextTick(rot);
-
-        return rot;
+    @V8Function
+    public V8ValueArray getVel() {
+        // TODO: Add prototype to vec object (To add useful methods like magnitude)
+        return makeVector(player.motionX, player.motionY, player.motionZ);
     }
 
-    public void setPos(V8Array pos) {
-        double x = ConversionHelper.toDouble(pos.get(0));
-        double y = ConversionHelper.toDouble(pos.get(1));
-        double z = ConversionHelper.toDouble(pos.get(2));
-        pos.release();
-
-        mc.player.setPosition(x, y, z);
+    @V8Function
+    public V8ValueArray getRot() {
+        return makeVector(player.rotationYaw, player.rotationPitch);
     }
 
-    public void setRot(V8Array rot) {
-        float yaw = ConversionHelper.toFloat(rot.get(0));
-        float pitch = ConversionHelper.toFloat(rot.get(1));
-        rot.release();
+    @V8Function
+    public void setPos(V8ValueArray pos) {
+        try {
+            double x = ConversionHelper.toDouble(pos.get(0));
+            double y = ConversionHelper.toDouble(pos.get(1));
+            double z = ConversionHelper.toDouble(pos.get(2));
 
-        mc.player.rotationYawHead = yaw;
-        mc.player.rotationPitch = pitch;
+            mc.player.setPosition(x, y, z);
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        // TODO: Close the pos resource?
     }
 
-    public void setVel(V8Array vel) {
-        double x = ConversionHelper.toDouble(vel.get(0));
-        double y = ConversionHelper.toDouble(vel.get(1));
-        double z = ConversionHelper.toDouble(vel.get(2));
-        vel.release();
+    @V8Function
+    public void setRot(V8ValueArray rot) {
+        try {
+            float yaw = ConversionHelper.toFloat(rot.get(0));
+            float pitch = ConversionHelper.toFloat(rot.get(1));
 
-        mc.player.motionX = x;
-        mc.player.motionY = y;
-        mc.player.motionZ = z;
+            mc.player.rotationYawHead = yaw;
+            mc.player.rotationPitch = pitch;
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        // TODO: Close the rot resource?
     }
 
-    public static V8Object create(V8 runtime) {
-        instance = new JSPlayer();
+    @V8Function
+    public void setVel(V8ValueArray vel) {
+        try {
+            double x = ConversionHelper.toDouble(vel.get(0));
+            double y = ConversionHelper.toDouble(vel.get(1));
+            double z = ConversionHelper.toDouble(vel.get(2));
 
-        V8Object obj = new V8Object(runtime);
+            mc.player.motionX = x;
+            mc.player.motionY = y;
+            mc.player.motionZ = z;
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
 
-        obj.registerJavaMethod(instance, "leftClick", "leftClick", new Class[] {});
+        // TODO: Close the pos resource?
+    }
 
-        obj.registerJavaMethod(instance, "isOnGround", "isOnGround", new Class[] {});
-        obj.registerJavaMethod(instance, "isSprinting", "isSprinting", new Class[] {});
-        obj.registerJavaMethod(instance, "isSneaking", "isSneaking", new Class[] {});
-
-        obj.registerJavaMethod(instance, "getHealth", "getHealth", new Class[] {});
-        obj.registerJavaMethod(instance, "getMaxHealth", "getMaxHealth", new Class[] {});
-
-        obj.registerJavaMethod(instance, "getPos", "getPos", new Class[] {});
-        obj.registerJavaMethod(instance, "getVel", "getVel", new Class[] {});
-        obj.registerJavaMethod(instance, "getRot", "getRot", new Class[] {});
-
-        obj.registerJavaMethod(instance, "setPos", "setPos", new Class[] {V8Array.class});
-        obj.registerJavaMethod(instance, "setVel", "setVel", new Class[] {V8Array.class});
-        obj.registerJavaMethod(instance, "setRot", "setRot", new Class[] {V8Array.class});
-
-        JSEngine.instance.releaseAtEnd(obj);
-        return obj;
+    public static V8ValueObject create(V8Runtime runtime) {
+        instance = new JSPlayer(runtime);
+        return JSEngine.instance.createGlobalJsLib(instance);
     }
 }

@@ -1,7 +1,8 @@
 package com.la.jsmod.jslib;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Object;
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.JSEngine;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -9,21 +10,18 @@ import org.lwjgl.input.Mouse;
 public class JSInput {
     public static JSInput instance;
 
-    public boolean isMouseDown(Integer button) {
+    @V8Function
+    public boolean isMouseDown(int button) {
         return Mouse.isButtonDown(button);
     }
 
-    public boolean isKeyDown(Integer key) {
+    @V8Function
+    public boolean isKeyDown(int key) {
         return Keyboard.isKeyDown(key);
     }
 
-    public static V8Object create(V8 runtime) {
+    public static V8ValueObject create(V8Runtime runtime) {
         instance = new JSInput();
-
-        V8Object obj = new V8Object(runtime);
-        obj.registerJavaMethod(instance, "isMouseDown", "isMouseDown", new Class[] {Integer.class});
-        obj.registerJavaMethod(instance, "isKeyDown", "isKeyDown", new Class[] {Integer.class});
-        JSEngine.instance.releaseAtEnd(obj);
-        return obj;
+        return JSEngine.instance.createGlobalJsLib(instance);
     }
 }

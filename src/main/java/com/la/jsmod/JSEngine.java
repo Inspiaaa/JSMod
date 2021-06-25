@@ -1,9 +1,11 @@
 package com.la.jsmod;
 
-import com.eclipsesource.v8.*;
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.exceptions.*;
+import com.caoccao.javet.interop.V8Host;
+import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.jslib.*;
-import com.la.jsmod.jslib.world.JSBlocks;
-import com.la.jsmod.jslib.world.JSWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -19,19 +21,58 @@ import java.util.LinkedList;
 public class JSEngine {
     public static JSEngine instance;
 
-    public V8 runtime;
-
-    private final LinkedList<V8Object> objectsToReleaseAtEnd = new LinkedList<V8Object>();
-    private final LinkedList<V8Object> objectsToReleaseNextTick = new LinkedList<V8Object>();
+    public V8Runtime runtime;
 
     // TODO: Create command to activate / deactivate this from the game
     public static boolean printErrors = true;
 
     private final String DEFAULT_SCRIPT_NAME = "__main__";
 
+    // private final LinkedList<V8ValueObject> objectsToReleaseAtEnd = new LinkedList<V8ValueObject>();
+    private final LinkedList<String> objectsToReleaseAtEnd = new LinkedList<String>();
+
     public JSEngine() {
         MinecraftForge.EVENT_BUS.register(this);
         instance = this;
+    }
+
+    public String formatJsError(JavetScriptingError e) {
+        // E.g.
+        /*
+        TypeError: Cannot read property 'a' of null
+        2| null.a
+           ^^^^^^
+         */
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(e.getMessage());
+        builder.append("\n");
+        builder.append(e.getResourceName());
+        builder.append("\n");
+
+        String lineStart = e.getLineNumber() + "| ";
+        builder.append(lineStart);
+        builder.append(e.getSourceLine());
+        builder.append("\n");
+
+        for (int i = 0; i < lineStart.length() + e.getStartColumn()-1; i++) {
+            builder.append(" ");
+        }
+        for (int i = 0; i < e.getEndColumn() - e.getStartColumn() + 1; i++) {
+            builder.append("^");
+        }
+
+        return builder.toString();
+    }
+
+    private void handleJavetError(JavetException e) {
+        if (e instanceof BaseJavetScriptingException) {
+            JSMod.logger.error(formatJsError(((BaseJavetScriptingException) e).getScriptingError()));
+            return;
+        }
+
+        e.printStackTrace();
     }
 
 
@@ -68,49 +109,46 @@ public class JSEngine {
 
     public void safeLoad(String code, boolean showError, String name) {
         try {
-            runtime.executeVoidScript(code, name, 0);
+            // runtime.execute(code, new V8ScriptOrigin(name), true);
+            runtime.getExecutor(code).setResourceName(name).executeVoid();
+            JSMod.logger.info(runtime.getGlobalObject().getJson().stringify(runtime.getGlobalObject()));
         }
-        catch (V8ScriptCompilationException e) {
+        catch (JavetCompilationException e) {
             if (showError) {
-                JSMod.logger.error(e.getJSStackTrace());
+                JSMod.logger.error("Compilation error loading " + name);
+                JSMod.logger.error(formatJsError(e.getScriptingError()));
             }
         }
-        catch (V8ScriptExecutionException e) {
+        catch (JavetExecutionException e) {
             if (showError) {
-                JSMod.logger.error(e.getJSStackTrace());
+                JSMod.logger.error(formatJsError(e.getScriptingError()));
+            }
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void safeCallVoid(String name, Object... parameters) {
+        try {
+            runtime.getGlobalObject().invokeVoid(name, parameters);
+            // runtime.ca
+        }
+        catch (JavetException e) {
+            if (printErrors) {
+                handleJavetError(e);
             }
         }
     }
 
-
-    public void safeCallVoid(String name) {
-        safeCallVoid(name, null);
-    }
-
-    public void safeCallVoid(String name, V8Array parameters) {
+    public Object safeCall(String name, Object... parameters) {
         try {
-            runtime.executeVoidFunction(name, parameters);
+            return runtime.getGlobalObject().invoke(name, parameters);
         }
-        catch (V8ScriptExecutionException e) {
+        catch (JavetException e) {
             if (printErrors) {
-                JSMod.logger.error(e.getJSMessage());
-                JSMod.logger.error(e.getJSStackTrace());
-            }
-        }
-    }
-
-    public Object safeCall(String name) {
-        return safeCall(name, null);
-    }
-
-    public Object safeCall(String name, V8Array parameters) {
-        try {
-            return runtime.executeFunction(name, parameters);
-        }
-        catch (V8ScriptExecutionException e) {
-            if (printErrors) {
-                JSMod.logger.error(e.getJSMessage());
-                JSMod.logger.error(e.getJSStackTrace());
+                handleJavetError(e);
             }
         }
 
@@ -118,48 +156,82 @@ public class JSEngine {
     }
 
 
-    public void releaseNextTick(V8Object obj) {
-        objectsToReleaseNextTick.add(obj);
+    public V8ValueObject createGlobalJsLib(Object interceptor) {
+        V8ValueObject obj = null;
+
+        try {
+            obj = runtime.createV8ValueObject();
+            obj.bind(interceptor);
+            obj.setWeak();
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        return obj;
     }
 
-    public void releaseAtEnd(V8Object obj) {
-        objectsToReleaseAtEnd.add(obj);
+    private void loadGlobalLibrary(String name, V8ValueObject obj) {
+        try {
+            runtime.getGlobalObject().set(name, obj);
+        }
+        catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        objectsToReleaseAtEnd.add(name);
     }
 
+    public static class InterceptorTest {
+        @V8Function
+        public int getX() {
+            return 1;
+        }
+    }
 
     public void createRuntime() {
         JSMod.logger.info("Creating V8 Runtime");
-        runtime = V8.createV8Runtime();
 
-        runtime.add("Console", JSConsole.create(runtime));
-        runtime.add("Chat", JSChat.create(runtime));
-        runtime.add("Input", JSInput.create(runtime));
-        runtime.add("Player", JSPlayer.create(runtime));
-        runtime.add("KeyBind", JSAllKeybindings.create(runtime));
-        runtime.add("Rendering", JSRendering.create(runtime));
-        runtime.add("Blocks", JSBlocks.create(runtime));
-        runtime.add("World", JSWorld.create(runtime));
+        try {
+            runtime = V8Host.getV8Instance().createV8Runtime();
+
+        } catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        JSMod.logger.info("Loading builtin libraries");
+        loadGlobalLibrary("Console", JSConsole.create(runtime));
+        loadGlobalLibrary("Chat", JSChat.create(runtime));
+        loadGlobalLibrary("Input", JSInput.create(runtime));
+        loadGlobalLibrary("Player", JSPlayer.create(runtime));
+        // loadGlobalLibrary("KeyBind", JSAllKeybindings.create(runtime));
+        loadGlobalLibrary("Rendering", JSRendering.create(runtime));
+        // loadGlobalLibrary("Blocks", JSBlocks.create(runtime));
+        // loadGlobalLibrary("World", JSWorld.create(runtime));
     }
 
     public void releaseRuntime() {
-        JSMod.logger.info("Releasing V8 Runtime");
+        JSMod.logger.info("Releasing " + objectsToReleaseAtEnd.size() + " global namespaces");
 
-        for (V8Object obj : objectsToReleaseNextTick) {
-            obj.release();
+        for (String name : objectsToReleaseAtEnd) {
+            try {
+                runtime.getGlobalObject().delete(name);
+            } catch (JavetException e) {
+                e.printStackTrace();
+            }
         }
-        objectsToReleaseNextTick.clear();
 
-        for (V8Object obj : objectsToReleaseAtEnd) {
-            obj.release();
-        }
         objectsToReleaseAtEnd.clear();
 
+        JSMod.logger.info("Releasing V8 Runtime");
         try {
-            runtime.release(true);
+            // Call the GC to make sure that any objects that have actually been removed
+            // do not cause a supposed memory leak warning
+            runtime.lowMemoryNotification();
+            runtime.close();
         }
-        catch (IllegalStateException e) {
-            JSMod.logger.warn("Memory leaks detected");
-            JSMod.logger.warn(e.getMessage());
+        catch (JavetException e) {
+            e.printStackTrace();
         }
     }
 
@@ -170,11 +242,6 @@ public class JSEngine {
 
         if (event.phase != TickEvent.Phase.END)
             return;
-
-        for (V8Object obj : objectsToReleaseNextTick) {
-            obj.release();
-        }
-        objectsToReleaseNextTick.clear();
 
         try {
             safeCallVoid("onTick");
@@ -189,18 +256,12 @@ public class JSEngine {
         int keyCode = Keyboard.getEventKey();
 
         try {
-            V8Array params = new V8Array(runtime);
-
-            params.push(keyCode);
-
             if (Keyboard.isKeyDown(keyCode)) {
-                safeCallVoid("onKeyDown", params);
+                safeCallVoid("onKeyDown", keyCode);
             }
             else {
-                safeCallVoid("onKeyUp", params);
+                safeCallVoid("onKeyUp", keyCode);
             }
-
-            params.release();
         }
         catch (Throwable e) {
             JSMod.logger.error(e.getStackTrace());
