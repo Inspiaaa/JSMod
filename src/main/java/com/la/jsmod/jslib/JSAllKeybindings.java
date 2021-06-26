@@ -45,53 +45,47 @@ public class JSAllKeybindings {
         }
     }
 
-    public static V8ValueObject create(V8Runtime runtime) {
+    public static V8ValueObject create(V8Runtime runtime) throws JavetException {
         GameSettings gs = Minecraft.getMinecraft().gameSettings;
 
-        try {
-            V8ValueObject obj = runtime.createV8ValueObject();
-            obj.setWeak();
+        V8ValueObject obj = runtime.createV8ValueObject();
+        obj.setWeak();
 
-            V8ValueArray hotbarKeyBinds = runtime.createV8ValueArray();
-            hotbarKeyBinds.setWeak();
-            for (KeyBinding binding : gs.keyBindsHotbar) {
-                hotbarKeyBinds.push(JSKeyBind.create(runtime, binding));
-            }
-
-            obj.set("attack", JSKeyBind.create(runtime, gs.keyBindAttack));
-            obj.set("useItem", JSKeyBind.create(runtime, gs.keyBindUseItem));
-            obj.set("drop", JSKeyBind.create(runtime, gs.keyBindDrop));
-            obj.set("pickBlock", JSKeyBind.create(runtime, gs.keyBindPickBlock));
-
-            obj.set("forward", JSKeyBind.create(runtime, gs.keyBindForward));
-            obj.set("right", JSKeyBind.create(runtime, gs.keyBindRight));
-            obj.set("left", JSKeyBind.create(runtime, gs.keyBindLeft));
-            obj.set("back", JSKeyBind.create(runtime, gs.keyBindBack));
-            obj.set("jump", JSKeyBind.create(runtime, gs.keyBindJump));
-
-            obj.set("sneak", JSKeyBind.create(runtime, gs.keyBindSneak));
-            obj.set("sprint", JSKeyBind.create(runtime, gs.keyBindSprint));
-
-            obj.set("chat", JSKeyBind.create(runtime, gs.keyBindChat));
-            obj.set("command", JSKeyBind.create(runtime, gs.keyBindCommand));
-            obj.set("inventory", JSKeyBind.create(runtime, gs.keyBindInventory));
-            obj.set("playerList", JSKeyBind.create(runtime, gs.keyBindPlayerList));
-
-            obj.set("fullscreen", JSKeyBind.create(runtime, gs.keyBindFullscreen));
-            obj.set("screenshot", JSKeyBind.create(runtime, gs.keyBindScreenshot));
-            obj.set("spectatorOutlines", JSKeyBind.create(runtime, gs.keyBindSpectatorOutlines));
-
-            obj.set("togglePerspective", JSKeyBind.create(runtime, gs.keyBindTogglePerspective));
-            obj.set("smoothCamera", JSKeyBind.create(runtime, gs.keyBindSmoothCamera));
-
-            obj.set("swapHands", JSKeyBind.create(runtime, gs.keyBindSwapHands));
-            obj.set("hotbar", hotbarKeyBinds);
-
-            return obj;
+        V8ValueArray hotbarKeyBinds = runtime.createV8ValueArray();
+        hotbarKeyBinds.setWeak();
+        for (KeyBinding binding : gs.keyBindsHotbar) {
+            hotbarKeyBinds.push(JSKeyBind.create(runtime, binding));
         }
-        catch (JavetException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+        obj.set("attack", JSKeyBind.create(runtime, gs.keyBindAttack));
+        obj.set("useItem", JSKeyBind.create(runtime, gs.keyBindUseItem));
+        obj.set("drop", JSKeyBind.create(runtime, gs.keyBindDrop));
+        obj.set("pickBlock", JSKeyBind.create(runtime, gs.keyBindPickBlock));
+
+        obj.set("forward", JSKeyBind.create(runtime, gs.keyBindForward));
+        obj.set("right", JSKeyBind.create(runtime, gs.keyBindRight));
+        obj.set("left", JSKeyBind.create(runtime, gs.keyBindLeft));
+        obj.set("back", JSKeyBind.create(runtime, gs.keyBindBack));
+        obj.set("jump", JSKeyBind.create(runtime, gs.keyBindJump));
+
+        obj.set("sneak", JSKeyBind.create(runtime, gs.keyBindSneak));
+        obj.set("sprint", JSKeyBind.create(runtime, gs.keyBindSprint));
+
+        obj.set("chat", JSKeyBind.create(runtime, gs.keyBindChat));
+        obj.set("command", JSKeyBind.create(runtime, gs.keyBindCommand));
+        obj.set("inventory", JSKeyBind.create(runtime, gs.keyBindInventory));
+        obj.set("playerList", JSKeyBind.create(runtime, gs.keyBindPlayerList));
+
+        obj.set("fullscreen", JSKeyBind.create(runtime, gs.keyBindFullscreen));
+        obj.set("screenshot", JSKeyBind.create(runtime, gs.keyBindScreenshot));
+        obj.set("spectatorOutlines", JSKeyBind.create(runtime, gs.keyBindSpectatorOutlines));
+
+        obj.set("togglePerspective", JSKeyBind.create(runtime, gs.keyBindTogglePerspective));
+        obj.set("smoothCamera", JSKeyBind.create(runtime, gs.keyBindSmoothCamera));
+
+        obj.set("swapHands", JSKeyBind.create(runtime, gs.keyBindSwapHands));
+        obj.set("hotbar", hotbarKeyBinds);
+
+        return obj;
     }
 }

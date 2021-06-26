@@ -1,5 +1,5 @@
 
-function AutoBridge() {
+function RotateRepeaterToNorth() {
     return {
         name: "RotateRepeaterToNorth",
         desc: "Rotates the repeater one block under the player",
@@ -9,16 +9,19 @@ function AutoBridge() {
                 var pos = Player.getPos()
                 pos[1] -= 1
 
-                World.setBlock(pos, Blocks.UNPOWERED_REPEATER)
-                World.setBlockState(pos, {facing: "north"})
+                Chat.msg(JSON.stringify(World.getBlockState(pos)))
 
-                pos[2] += 1
-                World.setBlock(pos, Blocks.REDSTONE_WIRE)
+                // World.setBlock(pos, Blocks.UNPOWERED_REPEATER)
+                World.setBlockState(pos, {facing: "north"})
+                // World.setBlock(pos, Blocks.STONE)
+
+                //pos[2] += 1
+                //World.setBlock(pos, Blocks.REDSTONE_WIRE)
             }
         }
     }
 }
-Engine.registerModule( AutoBridge )
+Engine.registerModule( RotateRepeaterToNorth )
 
 
 function CoroutineExample() {

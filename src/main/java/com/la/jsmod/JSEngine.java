@@ -6,6 +6,8 @@ import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.values.reference.V8ValueObject;
 import com.la.jsmod.jslib.*;
+import com.la.jsmod.jslib.world.JSBlocks;
+import com.la.jsmod.jslib.world.JSWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -204,10 +206,22 @@ public class JSEngine {
         loadGlobalLibrary("Chat", JSChat.create(runtime));
         loadGlobalLibrary("Input", JSInput.create(runtime));
         loadGlobalLibrary("Player", JSPlayer.create(runtime));
-        loadGlobalLibrary("KeyBind", JSAllKeybindings.create(runtime));
+
+        try {
+            loadGlobalLibrary("KeyBind", JSAllKeybindings.create(runtime));
+        } catch (JavetException e) {
+            e.printStackTrace();
+        }
+
         loadGlobalLibrary("Rendering", JSRendering.create(runtime));
-        // loadGlobalLibrary("Blocks", JSBlocks.create(runtime));
-        // loadGlobalLibrary("World", JSWorld.create(runtime));
+
+        try {
+            loadGlobalLibrary("Blocks", JSBlocks.create(runtime));
+        } catch (JavetException e) {
+            e.printStackTrace();
+        }
+
+        loadGlobalLibrary("World", JSWorld.create(runtime));
     }
 
     public void releaseRuntime() {
